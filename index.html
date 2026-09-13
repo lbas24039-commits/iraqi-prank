@@ -316,7 +316,8 @@ await sleep(300);
 
 
 /* الصدمة */
-
+scream.currentTime = 0;
+scream.play().catch(e => console.log(e)) 
 await jumpScare();
 
 

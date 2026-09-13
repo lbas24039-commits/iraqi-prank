@@ -7,143 +7,66 @@
 
 <style>
 *{box-sizing:border-box}
-
 html,body{
-margin:0;
-width:100%;
-height:100%;
-background:#000;
-color:#00ff66;
-font-family:monospace;
-overflow:hidden
+margin:0;width:100%;height:100%;
+background:#000;color:#00ff66;
+font-family:monospace;overflow:hidden
 }
-
 body{
-display:flex;
-justify-content:center;
-align-items:center
+display:flex;justify-content:center;align-items:center
 }
-
 .scan{
-position:fixed;
-inset:0;
-pointer-events:none;
-z-index:20;
+position:fixed;inset:0;pointer-events:none;z-index:20;
 background:repeating-linear-gradient(
-0deg,
-transparent 0px,
-transparent 3px,
-rgba(0,255,80,.07) 4px
-)
+0deg,transparent 0px,transparent 3px,
+rgba(0,255,80,.07) 4px)
 }
-
 .flash{
-position:fixed;
-inset:0;
-background:red;
-opacity:0;
-pointer-events:none;
-z-index:30;
-transition:opacity .05s
+position:fixed;inset:0;background:red;
+opacity:0;pointer-events:none;z-index:30
 }
-
 .panel{
-width:94%;
-max-width:720px;
-padding:22px;
-border:1px solid #00ff66;
-background:#020604;
-box-shadow:
-0 0 25px #00ff66,
-inset 0 0 30px rgba(0,255,100,.08)
+width:94%;max-width:720px;padding:22px;
+border:1px solid #00ff66;background:#020604;
+box-shadow:0 0 25px #00ff66,inset 0 0 30px rgba(0,255,100,.08)
 }
-
 .title{
-color:#f22;
-font-size:22px;
-font-weight:bold;
-text-align:center;
-text-shadow:0 0 15px red;
-margin-bottom:18px
+color:#f22;font-size:22px;font-weight:bold;
+text-align:center;text-shadow:0 0 15px red;margin-bottom:18px
 }
-
 .status{
-border:1px solid #00ff66;
-padding:10px;
-margin-bottom:15px;
-font-size:13px
+border:1px solid #00ff66;padding:10px;
+margin-bottom:15px;font-size:13px
 }
-
 #terminal{
-height:350px;
-overflow:hidden;
-white-space:pre-wrap;
-line-height:1.7;
-font-size:14px
+height:350px;overflow:hidden;white-space:pre-wrap;
+line-height:1.7;font-size:14px
 }
-
 button{
-width:100%;
-margin-top:15px;
-padding:15px;
-background:#001b0b;
-color:#00ff66;
-border:1px solid #00ff66;
-font:bold 18px monospace;
+width:100%;margin-top:15px;padding:15px;
+background:#001b0b;color:#00ff66;
+border:1px solid #00ff66;font:bold 18px monospace;
 box-shadow:0 0 12px #00ff66
 }
-
-button:active{
-transform:scale(.96)
-}
-
-.red{
-color:#f22;
-text-shadow:0 0 8px red
-}
-
+.red{color:#f22;text-shadow:0 0 8px red}
 .progress{
-height:16px;
-border:1px solid #00ff66;
-margin-top:10px
+height:16px;border:1px solid #00ff66;margin-top:10px
 }
-
 .bar{
-height:100%;
-width:0%;
-background:#00ff66;
-box-shadow:0 0 12px #00ff66;
-transition:width .05s
+height:100%;width:0%;background:#00ff66;
+box-shadow:0 0 12px #00ff66
 }
-
 .big{
-text-align:center;
-font-size:35px;
-margin-top:10px;
-color:#f22;
-text-shadow:0 0 15px red
+text-align:center;font-size:35px;margin-top:10px;
+color:#f22;text-shadow:0 0 15px red
 }
-
-.shake{
-animation:shake .07s infinite
-}
-
+.shake{animation:shake .07s infinite}
 @keyframes shake{
 0%{transform:translate(0)}
 25%{transform:translate(5px,-4px)}
 50%{transform:translate(-5px,4px)}
 75%{transform:translate(4px,5px)}
 100%{transform:translate(0)}
-}
-
-.jumpscare{
-animation:jumpscare .1s infinite
-}
-
-@keyframes jumpscare{
-0%{transform:scale(1)}
-50%{transform:scale(1.1)}
-100%{transform:scale(1)}
 }
 </style>
 </head>
@@ -176,432 +99,223 @@ SERVER: IRAQ-CLASSIFIED-████
 
 <div class="big" id="count"></div>
 
-<button id="startBtn" onclick="start()">
+<button id="btn" onclick="start()">
 ▶ تشغيل الفحص السري
 </button>
 
 </div>
 
+<!-- ملف صراخ الرجل -->
+<audio id="scream" preload="auto">
+<source src="./scream.mp3" type="audio/mpeg">
+</audio>
+
 <script>
 
-let terminal = document.getElementById("terminal");
-let bar = document.getElementById("bar");
-let count = document.getElementById("count");
-let flash = document.getElementById("flash");
-let startBtn = document.getElementById("startBtn");
+const terminal=document.getElementById("terminal");
+const bar=document.getElementById("bar");
+const count=document.getElementById("count");
+const flash=document.getElementById("flash");
+const scream=document.getElementById("scream");
+const btn=document.getElementById("btn");
 
-let audio = null;
-let running = false;
-
-
-/* تشغيل النظام الصوتي */
+let audio;
+let running=false;
 
 function initAudio(){
-
 if(!audio){
-audio = new (
-window.AudioContext ||
-window.webkitAudioContext
-)();
+audio=new(window.AudioContext||window.webkitAudioContext)();
+}
+if(audio.state==="suspended") audio.resume();
 }
 
-if(audio.state === "suspended"){
-audio.resume();
-}
-
-}
-
-
-/* صوت إلكتروني */
-
-function beep(freq=500,duration=.07,volume=.05){
-
+function beep(freq=500,duration=.07){
 initAudio();
 
-let osc = audio.createOscillator();
-let gain = audio.createGain();
+let osc=audio.createOscillator();
+let gain=audio.createGain();
 
-osc.type = "square";
-osc.frequency.value = freq;
+osc.type="square";
+osc.frequency.value=freq;
 
-gain.gain.setValueAtTime(
-volume,
-audio.currentTime
-);
-
+gain.gain.setValueAtTime(.04,audio.currentTime);
 gain.gain.exponentialRampToValueAtTime(
-0.001,
-audio.currentTime + duration
+.001,audio.currentTime+duration
 );
 
 osc.connect(gain);
 gain.connect(audio.destination);
 
 osc.start();
-osc.stop(audio.currentTime + duration);
-
+osc.stop(audio.currentTime+duration);
 }
-
-
-/* إنذار */
-
-function alarm(){
-
-initAudio();
-
-let now = audio.currentTime;
-
-let osc = audio.createOscillator();
-let gain = audio.createGain();
-
-osc.type = "sawtooth";
-
-osc.frequency.setValueAtTime(
-350,
-now
-);
-
-osc.frequency.exponentialRampToValueAtTime(
-1200,
-now + .3
-);
-
-gain.gain.setValueAtTime(
-.001,
-now
-);
-
-gain.gain.exponentialRampToValueAtTime(
-.2,
-now + .05
-);
-
-gain.gain.exponentialRampToValueAtTime(
-.001,
-now + .5
-);
-
-osc.connect(gain);
-gain.connect(audio.destination);
-
-osc.start(now);
-osc.stop(now + .5);
-
-}
-
-
-/* الصرخة المفاجئة */
-
-function scream(){
-
-initAudio();
-
-let now = audio.currentTime;
-
-
-/* الصوت الرئيسي */
-
-let osc1 = audio.createOscillator();
-let gain1 = audio.createGain();
-
-osc1.type = "sawtooth";
-
-osc1.frequency.setValueAtTime(
-700,
-now
-);
-
-osc1.frequency.exponentialRampToValueAtTime(
-2400,
-now + .3
-);
-
-osc1.frequency.exponentialRampToValueAtTime(
-650,
-now + 1.0
-);
-
-gain1.gain.setValueAtTime(
-.001,
-now
-);
-
-gain1.gain.exponentialRampToValueAtTime(
-.32,
-now + .06
-);
-
-gain1.gain.exponentialRampToValueAtTime(
-.001,
-now + 1
-);
-
-osc1.connect(gain1);
-gain1.connect(audio.destination);
-
-osc1.start(now);
-osc1.stop(now + 1);
-
-
-/* طبقة حادة */
-
-let osc2 = audio.createOscillator();
-let gain2 = audio.createGain();
-
-osc2.type = "square";
-
-osc2.frequency.setValueAtTime(
-1400,
-now
-);
-
-osc2.frequency.exponentialRampToValueAtTime(
-3000,
-now + .25
-);
-
-osc2.frequency.exponentialRampToValueAtTime(
-900,
-now + .8
-);
-
-gain2.gain.setValueAtTime(
-.001,
-now
-);
-
-gain2.gain.exponentialRampToValueAtTime(
-.13,
-now + .04
-);
-
-gain2.gain.exponentialRampToValueAtTime(
-.001,
-now + .85
-);
-
-osc2.connect(gain2);
-gain2.connect(audio.destination);
-
-osc2.start(now);
-osc2.stop(now + .85);
-
-}
-
-
-/* فلاش أحمر */
-
-function redFlash(){
-
-flash.style.opacity = ".35";
-
-setTimeout(()=>{
-flash.style.opacity = "0";
-},180);
-
-}
-
-
-/* انتظار */
 
 function sleep(ms){
-
-return new Promise(
-resolve => setTimeout(resolve,ms)
-);
-
+return new Promise(r=>setTimeout(r,ms));
 }
 
+async function write(text,speed=18){
 
-/* كتابة الشاشة */
+for(let i=0;i<text.length;i++){
 
-async function write(text,speed=20){
+terminal.innerHTML+=text[i];
 
-for(let char of text){
-
-terminal.innerHTML += char;
-
-if(char !== " "){
-beep(
-300 + Math.random()*700,
-.018,
-.035
-);
-}
+if(text[i]!==" ")
+beep(300+Math.random()*700,.018);
 
 await sleep(speed);
-
 }
 
-terminal.innerHTML += "\n";
-
-terminal.scrollTop =
-terminal.scrollHeight;
-
+terminal.innerHTML+="\n";
+terminal.scrollTop=terminal.scrollHeight;
 }
-
-
-/* شريط التحميل */
 
 async function progress(){
 
 for(let i=0;i<=100;i++){
 
-bar.style.width = i + "%";
+bar.style.width=i+"%";
 
-if(i % 10 === 0){
-
-beep(
-300 + i*5,
-.06
-);
-
+if(i%10===0){
+beep(300+i*5,.05);
 await sleep(100);
-
 }
 
 }
-
 }
 
+function redFlash(){
 
-/* العد التنازلي */
+flash.style.opacity=".35";
+
+setTimeout(()=>{
+flash.style.opacity="0";
+},180);
+
+}
 
 async function countdown(){
 
 for(let i=5;i>=1;i--){
 
-count.innerHTML = i;
+count.innerHTML=i;
 
-beep(150,.25,.1);
+beep(150,.25);
 
 redFlash();
 
 await sleep(700);
+}
+
+count.innerHTML="";
+}
+
+
+/* تشغيل صراخ الرجل */
+
+async function playScream(){
+
+try{
+
+scream.currentTime=0;
+scream.volume=1;
+
+await scream.play();
+
+}catch(error){
+
+console.log("الصوت يحتاج ضغطة من المستخدم");
 
 }
 
-count.innerHTML = "";
-
 }
 
 
-/* الصدمة */
+/* المفاجأة */
 
 async function jumpScare(){
 
+document.body.classList.add("shake");
+
+count.innerHTML="⚠️";
+
+redFlash();
+
+playScream();
+
+await sleep(150);
+
+redFlash();
+
+await sleep(150);
+
+redFlash();
+
+await sleep(1200);
+
 document.body.classList.remove("shake");
 
-document.body.classList.add("jumpscare");
-
-count.innerHTML = "⚠️";
-
-redFlash();
-
-scream();
-
-await sleep(250);
-
-redFlash();
-
-await sleep(250);
-
-redFlash();
-
-await sleep(700);
-
-document.body.classList.remove("jumpscare");
-
-count.innerHTML = "";
+count.innerHTML="";
 
 }
 
 
-/* البرنامج الرئيسي */
+/* المقلب */
 
 async function start(){
 
 if(running)return;
 
-running = true;
-
-startBtn.disabled = true;
-startBtn.innerText = "⏳ جاري الفحص...";
+running=true;
+btn.disabled=true;
+btn.innerText="⏳ جاري الفحص...";
 
 initAudio();
 
-terminal.innerHTML = "";
-bar.style.width = "0%";
-count.innerHTML = "";
+terminal.innerHTML="";
+bar.style.width="0%";
+count.innerHTML="";
 
-document.body.classList.add("shake");
+await write(">> تهيئة النظام السري...");
 
-beep(100,.5,.1);
+await write(">> جاري الاتصال بالسيرفر...");
 
-await write(
-">> تهيئة النظام السري..."
-);
-
-await write(
-">> جاري الاتصال بالسيرفر..."
-);
-
-await write(
-">> الاتصال ناجح ✓"
-);
+await write(">> الاتصال ناجح ✓");
 
 await sleep(400);
 
-await write(
-">> فحص المستخدم..."
-);
+await write(">> فحص المستخدم...");
 
-await write(
-">> تحليل مستوى الفضول..."
-);
+await write(">> تحليل مستوى الفضول...");
 
-await write(
-">> مستوى الفضول: 100%"
-);
+await write(">> مستوى الفضول: 100%");
 
 await sleep(400);
 
-await write(
-">> جاري البحث عن المشاكل..."
-);
+await write(">> جاري البحث عن المشاكل...");
 
-await write(
-">> تم العثور على مشاكل هواية 😂"
-);
+await write(">> تم العثور على مشاكل هواية 😂");
 
 await progress();
 
 await write("");
 
-await write(
-">> اكتمل الفحص بنسبة 100%"
-);
+await write(">> اكتمل الفحص بنسبة 100%");
 
-await write(
-">> تم اكتشاف مستخدم عراقي مشبوه 👀"
-);
+await write(">> تم اكتشاف مستخدم عراقي مشبوه 👀");
 
-await sleep(600);
+await sleep(700);
 
 await write("");
 
-await write(
-"⚠ تحذير: النظام بدأ يسأل أسئلة خطيرة!"
-);
-
-await sleep(500);
+await write("⚠ تحذير: النظام بدأ يسأل أسئلة خطيرة!");
 
 await countdown();
 
 await sleep(300);
 
 
-/* المفاجأة */
+/* الصدمة */
 
 await jumpScare();
 
@@ -610,47 +324,30 @@ await jumpScare();
 
 await write("");
 
-await write(
-"😂😂😂 لحظة لحظة..."
-);
+await write("😂😂😂 لحظة لحظة...");
 
 await sleep(400);
 
-await write(
-"يمعود شنو مسوي حتى دخلت لهنا؟ 😂"
-);
+await write("يمعود شنو مسوي حتى دخلت لهنا؟ 😂");
 
-await write(
-"لا تدك الشاشة، ما راح تطلع فلوس 😂"
-);
+await write("لا تدك الشاشة، ما راح تطلع فلوس 😂");
 
-await write(
-"اطمّن حبيبي..."
-);
+await write("اطمّن حبيبي...");
 
-await write(
-"هذا مجرد مقلب عراقي 🇮🇶"
-);
+await write("هذا مجرد مقلب عراقي 🇮🇶");
 
 await write("");
 
-await write(
-"الحكم النهائي:"
-);
+await write("الحكم النهائي:");
 
-await write(
-"عليك چاي لكل الجماعة ☕😂"
-);
+await write("عليك چاي لكل الجماعة ☕😂");
 
-beep(900,.3,.1);
+count.innerHTML="😂 مـقـلـب 😂";
 
-count.innerHTML =
-"😂 مـقـلـب 😂";
+btn.disabled=false;
+btn.innerText="🔄 إعادة المقلب";
 
-startBtn.disabled = false;
-startBtn.innerText = "🔄 إعادة المقلب";
-
-running = false;
+running=false;
 
 }
 

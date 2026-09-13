@@ -2,8 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>BLACK SITE // ACCESS</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BLACK SITE // IRAQI SYSTEM</title>
 
 <style>
 *{box-sizing:border-box}
@@ -12,7 +12,7 @@ html,body{
  margin:0;
  width:100%;
  height:100%;
- background:#020403;
+ background:#000;
  color:#00ff66;
  font-family:monospace;
  overflow:hidden;
@@ -20,295 +20,307 @@ html,body{
 
 body{
  display:flex;
- align-items:center;
  justify-content:center;
+ align-items:center;
 }
 
-body:before{
- content:"";
+.scan{
  position:fixed;
  inset:0;
  pointer-events:none;
- background:
- linear-gradient(rgba(0,255,100,.04) 1px,transparent 1px),
- linear-gradient(90deg,rgba(0,255,100,.025) 1px,transparent 1px);
- background-size:25px 25px;
- animation:grid 3s linear infinite;
+ background:repeating-linear-gradient(
+  0deg,
+  transparent 0px,
+  transparent 3px,
+  rgba(0,255,80,.07) 4px
+ );
+ z-index:20;
 }
 
-@keyframes grid{
- to{background-position:0 25px,25px 0}
+.flash{
+ position:fixed;
+ inset:0;
+ background:#ff0000;
+ opacity:0;
+ pointer-events:none;
+ z-index:30;
 }
 
-#app{
- width:min(900px,94vw);
- padding:25px;
+.panel{
+ width:94%;
+ max-width:720px;
+ padding:22px;
  border:1px solid #00ff66;
- box-shadow:0 0 30px #00ff6640;
- background:#020805e8;
- position:relative;
+ background:#020604;
+ box-shadow:0 0 25px #00ff66,
+ inset 0 0 30px rgba(0,255,100,.08);
 }
 
-h1{
- font-size:clamp(22px,6vw,45px);
- margin:0 0 10px;
- text-shadow:0 0 15px #00ff66;
- animation:glitch .12s infinite;
+.title{
+ color:#ff2222;
+ font-size:22px;
+ font-weight:bold;
+ text-align:center;
+ text-shadow:0 0 15px red;
+ margin-bottom:18px;
 }
 
-@keyframes glitch{
- 0%{transform:translate(0)}
- 50%{transform:translate(1px,-1px)}
- 100%{transform:translate(-1px,1px)}
-}
-
-.line{
- margin:9px 0;
- font-size:clamp(13px,3.5vw,18px);
-}
-
-.red{color:#ff1744}
-
-.warning{
- margin:20px 0;
- padding:15px;
- border:1px solid #ff1744;
- color:#ff1744;
- box-shadow:0 0 20px #ff174455;
- animation:danger .7s infinite alternate;
-}
-
-@keyframes danger{
- from{opacity:.5}
- to{opacity:1}
+.status{
+ border:1px solid #00ff66;
+ padding:10px;
+ margin-bottom:15px;
+ font-size:13px;
 }
 
 #terminal{
- height:230px;
+ height:350px;
  overflow:hidden;
- border-top:1px solid #00ff66;
- border-bottom:1px solid #00ff66;
- margin:20px 0;
- padding:12px;
- font-size:13px;
+ white-space:pre-wrap;
+ line-height:1.7;
+ font-size:14px;
 }
 
 button{
  width:100%;
- padding:16px;
- background:#00ff66;
- color:#001b09;
- border:0;
- font-weight:bold;
- font-size:18px;
- font-family:monospace;
- cursor:pointer;
- box-shadow:0 0 20px #00ff6680;
+ margin-top:15px;
+ padding:15px;
+ background:#001b0b;
+ color:#00ff66;
+ border:1px solid #00ff66;
+ font:bold 18px monospace;
+ box-shadow:0 0 12px #00ff66;
 }
 
 button:active{
  transform:scale(.97);
 }
 
-#result{
- display:none;
- text-align:center;
+.red{
+ color:#ff2222;
+ text-shadow:0 0 8px red;
+}
+
+.yellow{
+ color:#ffe600;
+}
+
+.progress{
+ height:16px;
+ border:1px solid #00ff66;
+ margin-top:10px;
+}
+
+.bar{
+ height:100%;
+ width:0%;
+ background:#00ff66;
+ box-shadow:0 0 12px #00ff66;
 }
 
 .big{
- font-size:clamp(28px,8vw,60px);
- color:#ff1744;
- text-shadow:0 0 25px red;
+ text-align:center;
+ font-size:35px;
+ margin-top:10px;
+ color:#ff2222;
+ text-shadow:0 0 15px red;
+}
+
+.shake{
  animation:shake .08s infinite;
 }
 
 @keyframes shake{
  0%{transform:translate(0)}
- 25%{transform:translate(3px,1px)}
- 50%{transform:translate(-3px,-1px)}
- 75%{transform:translate(2px,-2px)}
- 100%{transform:translate(-2px,2px)}
-}
-
-#count{
- font-size:60px;
- margin:15px;
-}
-
-.small{
- opacity:.7;
- font-size:12px;
+ 25%{transform:translate(3px,-2px)}
+ 50%{transform:translate(-3px,2px)}
+ 75%{transform:translate(2px,3px)}
+ 100%{transform:translate(0)}
 }
 </style>
 </head>
 
 <body>
 
-<div id="app">
+<div class="scan"></div>
+<div class="flash" id="flash"></div>
 
-<div id="start">
+<div class="panel">
 
-<h1>BLACK SITE // ACCESS</h1>
-
-<div class="line">> جاري الاتصال بالخادم...</div>
-<div class="line">> فحص النظام........ <span class="red">مراقبة</span></div>
-<div class="line">> تحميل بروتوكول الأمن...</div>
-
-<div class="warning">
-⚠ تحذير: تم اكتشاف نشاط غير اعتيادي
+<div class="title">
+⚠ BLACK SITE // IRAQI SECURITY SYSTEM ⚠
 </div>
 
-<div id="terminal"></div>
+<div class="status">
+STATUS: <span class="red">UNAUTHORIZED USER DETECTED</span>
+<br>
+SERVER: IRAQ-CLASSIFIED-████
+</div>
 
-<button onclick="startPrank()">
-⚡ ابدأ المقلب ⚡
+<div id="terminal">
+اضغط الزر حتى يبدأ الفحص...
+</div>
+
+<div class="progress">
+<div class="bar" id="bar"></div>
+</div>
+
+<div class="big" id="count"></div>
+
+<button onclick="start()">
+▶ تشغيل الفحص السري
 </button>
-
-<p class="small">
-اضغط مرة واحدة لتفعيل النظام الصوتي
-</p>
-
-</div>
-
-<div id="result">
-
-<div class="big">تم اكتشافك 😂</div>
-
-<div id="count">3</div>
-
-<p class="line">
-جاري إرسال فريق مكافحة الهكر...
-</p>
-
-<p class="line red">
-لا تخاف 😂 هذا مقلب عراقي!
-</p>
-
-<button onclick="location.reload()">
-🔄 إعادة المقلب
-</button>
-
-</div>
 
 </div>
 
 <script>
 
-const terminal=document.getElementById("terminal");
+let terminal=document.getElementById("terminal");
+let bar=document.getElementById("bar");
+let count=document.getElementById("count");
+let flash=document.getElementById("flash");
 
-const messages=[
-"> INITIALIZING BLACK SYSTEM...",
-"> الاتصال بالخادم السري...",
-"> تحليل الجهاز...",
-"> فحص مستوى الهكر...",
-"> تحميل ملفات الأمن...",
-"> ACCESS CHECK...",
-"> WARNING: USER DETECTED",
-"> تحديد موقع الضحية...",
-"> ERROR 404: الهكر ضايع 😂",
-"> SYSTEM OVERRIDE...",
-"> FINAL WARNING..."
-];
+let audio;
 
-let i=0;
+function sound(freq=500,duration=.07){
 
-function writeLines(){
- if(i<messages.length){
-   terminal.innerHTML += messages[i]+"<br>";
-   terminal.scrollTop=terminal.scrollHeight;
-   i++;
-   setTimeout(writeLines,350);
- }
-}
+ if(!audio)
+   audio=new(window.AudioContext||
+   window.webkitAudioContext)();
 
-writeLines();
+ let osc=audio.createOscillator();
+ let gain=audio.createGain();
 
-
-function beep(freq=700,duration=.12){
-
- const ctx=new (window.AudioContext||window.webkitAudioContext)();
- const osc=ctx.createOscillator();
- const gain=ctx.createGain();
-
- osc.frequency.value=freq;
  osc.type="square";
+ osc.frequency.value=freq;
 
- gain.gain.setValueAtTime(.08,ctx.currentTime);
- gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+duration);
+ gain.gain.setValueAtTime(.05,audio.currentTime);
+ gain.gain.exponentialRampToValueAtTime(
+  .001,
+  audio.currentTime+duration
+ );
 
  osc.connect(gain);
- gain.connect(ctx.destination);
+ gain.connect(audio.destination);
 
  osc.start();
- osc.stop(ctx.currentTime+duration);
+ osc.stop(audio.currentTime+duration);
 }
 
+function sleep(ms){
+ return new Promise(r=>setTimeout(r,ms));
+}
 
-function speak(text){
+async function write(text,speed=22){
 
- if("speechSynthesis" in window){
+ for(let i=0;i<text.length;i++){
 
-   speechSynthesis.cancel();
+  terminal.innerHTML+=text[i];
 
-   const voice=new SpeechSynthesisUtterance(text);
+  if(text[i]!==" ")
+    sound(250+Math.random()*700,.02);
 
-   voice.lang="ar-IQ";
-   voice.rate=.85;
-   voice.pitch=.65;
-   voice.volume=1;
+  await sleep(speed);
+ }
 
-   speechSynthesis.speak(voice);
+ terminal.innerHTML+="\n";
+ terminal.scrollTop=terminal.scrollHeight;
+}
+
+async function progress(){
+
+ for(let i=0;i<=100;i++){
+
+  bar.style.width=i+"%";
+
+  if(i%10===0)
+    await sleep(100);
+
  }
 }
 
+function redFlash(){
 
-function startPrank(){
+ flash.style.opacity=".18";
 
- beep(500,.15);
+ setTimeout(()=>{
+  flash.style.opacity="0";
+ },120);
 
- setTimeout(()=>beep(900,.15),180);
- setTimeout(()=>beep(1300,.2),360);
+}
 
- if(navigator.vibrate){
-   navigator.vibrate([100,70,100,70,200]);
+async function countdown(){
+
+ for(let i=5;i>=1;i--){
+
+  count.innerHTML=i;
+  sound(150,.25);
+  redFlash();
+
+  await sleep(700);
  }
 
- document.getElementById("start").style.display="none";
- document.getElementById("result").style.display="block";
+ count.innerHTML="";
 
- let n=3;
- const count=document.getElementById("count");
+}
 
- count.innerText=n;
+async function start(){
 
- const timer=setInterval(()=>{
+ if(!audio)
+   audio=new(window.AudioContext||
+   window.webkitAudioContext)();
 
-   n--;
+ terminal.innerHTML="";
+ bar.style.width="0%";
 
-   count.innerText=n;
+ document.body.classList.add("shake");
 
-   beep(900,.15);
+ sound(100,.5);
 
-   if(n<=0){
+ await write(">> تهيئة النظام السري...");
+ await write(">> جاري الاتصال بالسيرفر...");
+ await write(">> الاتصال ناجح ✓");
 
-     clearInterval(timer);
+ await sleep(400);
 
-     count.innerText="😂";
+ await write(">> فحص المستخدم...");
+ await write(">> تحليل مستوى الفضول...");
+ await write(">> مستوى الفضول: 100%");
 
-     for(let x=0;x<5;x++){
-       setTimeout(()=>beep(300+Math.random()*1200,.15),x*130);
-     }
+ await sleep(400);
 
-     if(navigator.vibrate){
-       navigator.vibrate([200,100,300,100,500]);
-     }
+ await write(">> جاري البحث عن المشاكل...");
+ await write(">> تم العثور على مشاكل هواية 😂");
 
-     speak(
-       "هلا بالهكر! شبيك صدگت؟ هذا مقلب عراقي يا بطل!"
-     );
-   }
+ await progress();
 
- },1000);
+ await write("");
+ await write(">> اكتمل الفحص بنسبة 100%");
+ await write(">> تم اكتشاف مستخدم عراقي مشبوه 👀");
+
+ await sleep(700);
+
+ await write("");
+ await write("⚠ تحذير: النظام بدأ يسأل أسئلة خطيرة!");
+
+ await countdown();
+
+ document.body.classList.remove("shake");
+
+ await write("");
+ await write("😂😂😂 لحظة لحظة...");
+ await sleep(500);
+
+ await write("يمعود شنو مسوي حتى دخلت لهنا؟ 😂");
+ await write("لا تدك الشاشة، ما راح تطلع فلوس 😂");
+ await write("اطمّن حبيبي...");
+ await write("هذا مجرد مقلب عراقي 🇮🇶");
+ await write("");
+ await write("الحكم النهائي:");
+ await write("عليك چاي لكل الجماعة ☕😂");
+
+ sound(900,.3);
+
+ count.innerHTML="😂 مـقـلـب 😂";
 
 }
 
